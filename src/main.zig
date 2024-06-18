@@ -5,11 +5,18 @@ pub fn main() !void {
     var bw = std.io.bufferedWriter(stdout_w);
     const stdout = bw.writer();
 
-    try stdout.print("Hello {s}\n", .{"world"});
+    const args = try std.process.argsAlloc(std.heap.page_allocator);
+    defer std.process.argsFree(std.heap.page_allocator, args);
+
+    if (args.len < 2) {
+        return error.NotEnoughArguments;
+    }
+
+    const max = try std.fmt.parseUnsigned(usize, args[1], 10);
 
     var i: u8 = 0;
 
-    while (i <= 100) : (i += 1) {
+    while (i <= max) : (i += 1) {
         if (i % 3 == 0 and i % 5 == 0) {
             try stdout.print("FizzBuzz\n", .{});
         } else if (i % 3 == 0) {
